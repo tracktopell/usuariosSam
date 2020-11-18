@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>mst.rc</groupId>
+    <artifactId>usuariosSam</artifactId>
+    <version>0.0.1</version>
+    <packaging>war</packaging>
+
+    <name>usuariosSam</name>
+
+    <properties>
+        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<webapp_context_root>${project.artifactId}</webapp_context_root>		
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+		
+		<app.info.name>${project.artifactId}</app.info.name>
+		<app.info.version>${project.version}</app.info.version>
+		
+        <security_domain_realm>SPECIFY_MAVEN_PROFILE</security_domain_realm>		
+        <jta_data_source>SPECIFY_MAVEN_PROFILE</jta_data_source>
+		<project.env>SPECIFY_MAVEN_PROFILE</project.env>
+		<web_session_timeout>5</web_session_timeout>		
+        <server_instance_XML_expresion><![CDATA[]]></server_instance_XML_expresion>
+        <virtual_host_XML_expresion><![CDATA[]]></virtual_host_XML_expresion>
+		
+    </properties>
+    
+    <dependencies>
+		
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+		
+    </dependencies>
+
+    <build>		
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/webapp/META-INF</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>     
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>                    
+                    <webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/web.xml</include>
+                                <include>**/jboss-web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+	    <profiles>
+        <profile>
+            <id>development</id>
+			<activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <security_domain_realm>SPECIFY_MAVEN_PROFILE</security_domain_realm>		
+				<jta_data_source>SPECIFY_MAVEN_PROFILE</jta_data_source>
+				<project.env>development</project.env>
+				<web_session_timeout>5</web_session_timeout>		
+				<server_instance_XML_expresion><![CDATA[]]></server_instance_XML_expresion>
+				<virtual_host_XML_expresion><![CDATA[]]></virtual_host_XML_expresion>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>qa</id>
+            <properties>
+                <security_domain_realm>SPECIFY_MAVEN_PROFILE</security_domain_realm>		
+				<jta_data_source>SPECIFY_MAVEN_PROFILE</jta_data_source>
+				<project.env>qa</project.env>
+				<web_session_timeout>5</web_session_timeout>		
+				<server_instance_XML_expresion><![CDATA[]]></server_instance_XML_expresion>
+				<virtual_host_XML_expresion><![CDATA[]]></virtual_host_XML_expresion>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>prod</id>
+            <properties>
+                <security_domain_realm>SPECIFY_MAVEN_PROFILE</security_domain_realm>		
+				<jta_data_source>SPECIFY_MAVEN_PROFILE</jta_data_source>
+				<project.env>prod</project.env>
+				<web_session_timeout>5</web_session_timeout>		
+				<server_instance_XML_expresion><![CDATA[]]></server_instance_XML_expresion>
+				<virtual_host_XML_expresion><![CDATA[]]></virtual_host_XML_expresion>
+            </properties>
+        </profile>
+              
+    </profiles>
+
+</project>
