@@ -76,6 +76,26 @@ public class OpcionPermiso implements Serializable {
 		this.nombreOpcion = nombreOpcion;
 	}
 
+	@JsonIgnore
+	public void setRutaMenu(List<String> rutaMenu) {
+		this.rutaMenu = rutaMenu;
+	}
+
+	@JsonIgnore
+	public List<String> getRutaMenu() {
+		return rutaMenu;
+	}
+
+	@JsonIgnore
+	public boolean isVisibleByRol() {
+		return visibleByRol;
+	}
+
+	@JsonIgnore
+	public void setVisibleByRol(boolean visibleByRol) {
+		this.visibleByRol = visibleByRol;
+	}
+	
 	/**
 	 * @return the parametros
 	 */

@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import mx.com.rc.dto.OpcionPermiso;
+import mx.com.rc.dto.UsuarioConMenu;
 
 import mx.com.rc.entidades.Empresa;
 import mx.com.rc.entidades.Opcion;
@@ -24,6 +27,8 @@ import mx.com.rc.rest.IGestorNegocioUsuario;
 @ApplicationScoped
 @Persistor
 public class GestorNegocioUsuario implements IGestorNegocioUsuario {
+	
+	private final static Logger LOGGER = Logger.getLogger(GestorNegocioUsuario.class.getName());
 	
 	@Inject
 	private IGestorDatosUsuario gestorDatos;
@@ -44,20 +49,14 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 			throw ne;
 		}
 	}
+	
 	@Override
 	public Usuario getUsuario(String idUsuario, boolean conRoles) {
 		
 		Usuario usuario = null;
-		Set <Opcion> arbolMenuConOpciones = new HashSet<Opcion>();
+		
 		try {
-			
 			usuario = this.gestorDatos.leerUsuario(idUsuario, conRoles);
-			
-			arbolMenuConOpciones = this.getArbolMenuConOpciones(usuario);
-			
-			Usuario usuarioConPermisos = this.reemplazarPermisosAlusuario(usuario, arbolMenuConOpciones);
-			
-			
 			
 			return usuario;
 			
@@ -67,13 +66,14 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 			detEx.put("msg", nex.getMessage());
 			NegocioException nEx = ManejadorErrNegocio.crearEx(detEx, nex);
 			throw nEx;
-		}
-		
+		}		
 	}
+	
 	private Usuario reemplazarPermisosAlusuario(Usuario usuario, Set<Opcion> arboldeOpciones) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	private Set <Opcion>  getArbolMenuConOpciones(Usuario usuario) {
 		Set <Opcion> arbolOpciones = new HashSet<Opcion>();
 		
@@ -87,51 +87,42 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 			
 			List<String> listaNuevosNodos = new ArrayList<String>();
 			
-			System.out.println("ListaNuevosNodos: " + listaNuevosNodos.toString());
+			LOGGER.info("ListaNuevosNodos: " + listaNuevosNodos.toString());
 			for(Permiso opcionI : rol.getPermisos()) {
 				String idOpcion = opcionI.getOpcion().getIdOpcion();
 				
 				List<String> listaConNodosXopcion = this.getListaConNodosXopcion(idOpcion);
 				
-				System.out.println("La lista de nodos: " + listaConNodosXopcion.toString());
+				LOGGER.info("La lista de nodos: " + listaConNodosXopcion.toString());
 				setSinNodosRepetidos = this.agregarNodos(listaConNodosXopcion, listaNuevosNodos);
 				//listaOpcionesNodo = this.crearRama(listaNodos);
-				//System.out.println("El nodo: " + listaConNodos.toString());
-				
+				//LOGGER.info("El nodo: " + listaConNodos.toString());	
 			}
-			
-			
 		}
-		
-		System.out.println("El set de nodos: " + setSinNodosRepetidos.toString());
+		LOGGER.info("El set de nodos: " + setSinNodosRepetidos.toString());
 		arbolOpciones = this.construirArbol(setSinNodosRepetidos);
-		
-		
-		
 		return arbolOpciones;
 	}
-	
-	
 	
 	private Set<Opcion> construirArbol(Set<String> sinNodosRepetidos) {
 		
 		Opcion nodoRaiz = new Opcion("nodoRaiz", null);
 		
-		System.out.println("Estoy aquí");
+		LOGGER.info("Estoy aquí");
 		Set<Opcion> opcionesPermitidas = new HashSet<Opcion>();
 		Set<Opcion> arbolConHojas = new HashSet<Opcion>();
 		Opcion rama = new Opcion("Padre", null);
 		for(String nodo : sinNodosRepetidos) {
 			Opcion opcionPermiso = this.gestorDatos.leerOpcionXidOpcion(nodo, false);
-			//System.out.println("Opcion:" + opcionPermiso.getIdOpcion());
+			//LOGGER.info("Opcion:" + opcionPermiso.getIdOpcion());
 			opcionesPermitidas.add(opcionPermiso);
 		}
 		for(Opcion opcionI: opcionesPermitidas) {
-			System.out.println("Las opciones en el set: " + opcionI.getIdOpcion());
+			LOGGER.info("Las opciones en el set: " + opcionI.getIdOpcion());
 			if(opcionI.getOpcionPadre() != null) {
-				System.out.println("soy hijo de:" + opcionI.getOpcionPadre().getIdOpcion());
+				LOGGER.info("soy hijo de:" + opcionI.getOpcionPadre().getIdOpcion());
 			}else {
-				System.out.println("Soy padre:" + opcionI.getIdOpcion());
+				LOGGER.info("Soy padre:" + opcionI.getIdOpcion());
 			}
 		}
 		return null;
@@ -154,7 +145,7 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 		for(int i = 0 ; i< listaNodos.size(); i++) {
 			if(i==0) {
 				rama = this.gestorDatos.leerOpcionXidOpcion(listaNodos.get(i), true);
-				System.out.println("soy el papa: " +rama.getOpcionesMenu());
+				LOGGER.info("soy el papa: " +rama.getOpcionesMenu());
 				
 			}
 			
@@ -178,14 +169,14 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 			nodo.setIdOpcion(listaNodos.get(i));
 			
 			listaRama.add(nodo);
-			/*System.out.println("La lista de opciones: " + listaNodos.get(i));
+			/*LOGGER.info("La lista de opciones: " + listaNodos.get(i));
 			//String rama = Integer.valueOf(parts[i]+1);
-			System.out.println("Hoja: " + nodo.getIdOpcion());
+			LOGGER.info("Hoja: " + nodo.getIdOpcion());
 			
 			int indiceNodo = copiaRama.contieneNodo(nodo);
-			System.out.println("el indice: " + indiceNodo);
+			LOGGER.info("el indice: " + indiceNodo);
 			if(indiceNodo != -1) {
-				System.out.println("indiceNodo: " + copiaRama.getOpcionesMenu().size());
+				LOGGER.info("indiceNodo: " + copiaRama.getOpcionesMenu().size());
 				copiaRama.getOpcionesMenu();
 			}else {
 				copiaRama.insertarHijo(nodo);
@@ -198,7 +189,7 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 	private List<String> getListaConNodosXopcion(String idOpcion) {
 		String[] listaNodos = null;
 		List<String> listaConNodos = new ArrayList<String>();
-		System.out.println("El permiso rol: " + idOpcion);
+		LOGGER.info("El permiso rol: " + idOpcion);
 		String idOpcionNodo = "";
 		listaNodos = idOpcion.split("\\.");
 		Opcion rama = new Opcion("Padre", null);
@@ -218,7 +209,7 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 	}
 	/*private List<String> getListaConNodos(String idOpcion) {
 		
-		System.out.println("El permiso rol: " + idOpcion);
+		LOGGER.info("El permiso rol: " + idOpcion);
 		List<String> listaNodos = idOpcion.split("\\.");
 		String part1 = listaNodos.get(0); // 123
 		
@@ -230,7 +221,7 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 			Rol rol = usuarioRolI.getRol();
 			for(Permiso opcionI : rol.getPermisos()) {
 				String idOpcion = opcionI.getOpcion().getIdOpcion();
-				System.out.println("El permiso rol: " + idOpcion);
+				LOGGER.info("El permiso rol: " + idOpcion);
 				String[] parts = idOpcion.split("\\.");
 				String part1 = parts[0]; // 123
 				
@@ -256,6 +247,7 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 		//opcion.setOpcionesMenu(opcionesHijas);
 		return opcion;
 	}
+	
 	@Override
 	public List<Empresa> getEmpresas() {
 		List<Empresa> empresas = null;
@@ -287,6 +279,94 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 			throw nEx;
 		}
 	}
-	
-	
+
+	@Override
+	public UsuarioConMenu getMenuUsuario(String idUsuario) {
+		UsuarioConMenu usuarioConMenu=new UsuarioConMenu();
+		Usuario usuario = null;
+		LinkedHashMap<String,Opcion>        opcionAllMap = new LinkedHashMap<>();
+		LinkedHashMap<String,Opcion>        opcionUsuarioMap = new LinkedHashMap<>();		
+		LinkedHashMap<String,OpcionPermiso> opcionpermisoAllMap = new LinkedHashMap<>();
+		LinkedHashMap<String,OpcionPermiso> opcionpermisoUsuarioMap = new LinkedHashMap<>();
+		
+		List<Rol> todosLosRoles = null;
+		List<Opcion> todasLasOpciones = null;
+		try {
+			usuario = this.gestorDatos.leerUsuario(idUsuario, true);
+			
+			todosLosRoles    = this.gestorDatos.leerTodosLosRoles();
+			
+			for(Rol r:todosLosRoles){
+				LOGGER.info("-> todosLosRoles: \trol:"+r.getDescripcion());
+				final Set<Permiso> permisosByRol = r.getPermisos();
+				for(Permiso p: permisosByRol){
+					final Opcion o = p.getOpcion();
+					opcionUsuarioMap.put(o.getIdOpcion(),o);
+				}
+			}
+			
+			todasLasOpciones = this.gestorDatos.leerTodasLasOpciones();
+			for(Opcion o:todasLasOpciones){
+				LOGGER.info("-> todasLasOpciones: \topcion:"+o.getIdOpcion());
+				opcionAllMap.put(o.getIdOpcion(),o);
+				final OpcionPermiso op = new OpcionPermiso();
+				op.setIdOpcion(o.getIdOpcion());
+				op.setIdOpcionPadre(o.getOpcionPadre()!=null?o.getOpcionPadre().getIdOpcion():null);
+				op.setNombreOpcion(o.getNombreOpcion());
+				op.setParametros(false);
+				op.setUrl(o.getUrl());
+				opcionpermisoAllMap.put(o.getIdOpcion(), op);
+			}
+			//------------------------------------------------------------------
+			for(OpcionPermiso op: opcionpermisoAllMap.values()){
+				List<String> path=new ArrayList<>();
+				boolean pathEnd=false;
+				OpcionPermiso diggUpper=op;
+				path.add(diggUpper.getIdOpcion());
+				while(!pathEnd){
+					String idOpcionPadre = diggUpper.getIdOpcionPadre();
+					if(idOpcionPadre != null){
+						path.add(idOpcionPadre);
+						diggUpper = opcionpermisoAllMap.get(idOpcionPadre);
+					} else {
+						pathEnd = true;
+					}
+				}
+				Collections.reverse(path);
+				op.setRutaMenu(path);
+				
+				if(op.getSubOpcionesList().size()==0 && opcionUsuarioMap.containsKey(op.getIdOpcion())){
+					op.setVisibleByRol(true);
+					final List<String> rutaMenu = op.getRutaMenu();
+					for(String idP: rutaMenu){
+						opcionpermisoAllMap.get(idP).setVisibleByRol(true);
+					}
+				}
+			}
+			for(OpcionPermiso op: opcionpermisoAllMap.values()){
+				final List<OpcionPermiso> subOpcionesList = op.getSubOpcionesList();
+				if(op.isVisibleByRol() && op.getIdOpcionPadre() == null ){
+					opcionpermisoUsuarioMap.put(op.getIdOpcion(), op);
+				}
+				List<OpcionPermiso> omRL=new ArrayList<>();
+				for(OpcionPermiso sm: subOpcionesList){
+					if(sm.isVisibleByRol()){
+						omRL.add(sm);
+					}
+				}
+				op.setSubOpcionesList(omRL);			
+			}
+			
+			usuarioConMenu.setOpcionMenuRaizList(new ArrayList<>());
+			usuarioConMenu.getOpcionMenuRaizList().addAll(opcionpermisoUsuarioMap.values());
+			usuarioConMenu.setUsuario(usuario);
+			return usuarioConMenu;			
+		} catch (NegocioException nex) {
+			Map<String,String> detEx = new HashMap<String,String>();
+			detEx.put("servicio",this.getClass()+".getMenuUsuario(idUsuario: " + idUsuario + ")");
+			detEx.put("msg", nex.getMessage());
+			NegocioException nEx = ManejadorErrNegocio.crearEx(detEx, nex);
+			throw nEx;
+		}
+	}	
 }

@@ -45,11 +45,9 @@ public class UsuarioRest {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUsuarios() {
-		List<Usuario> listaUsuarios = null;
-		
+		List<Usuario> listaUsuarios = null;		
 		try {
-			
-			listaUsuarios = this.gestorNegocioUsuario.getUsuarios(false);
+			listaUsuarios = this.gestorNegocioUsuario.getUsuarios(true);
 			if(listaUsuarios != null) {
 				builderResponse = Response.status(Response.Status.OK).entity(listaUsuarios);
 			}else {
@@ -75,7 +73,8 @@ public class UsuarioRest {
 		return builderResponse.build();
 		
 	}
-	@Path("{idUsuario}")
+
+	@Path("/{idUsuario}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAutenticacionUsuario(
@@ -108,4 +107,39 @@ public class UsuarioRest {
 		} 
 		return builderResponse.build();
 	}
+	
+	@Path("/menu/{idUsuario}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getMenuUsuario(
+			@PathParam("idUsuario")
+			String idUsuario) {
+		UsuarioConMenu usuarioConMenu=null;
+		
+		try {
+			usuarioConMenu = this.gestorNegocioUsuario.getMenuUsuario(idUsuario);
+			
+			if(usuarioConMenu == null) {
+				response.put("mensaje", "No Existe el usuario con clave: "+idUsuario);
+				builderResponse = Response.status(Response.Status.OK).entity(response);
+			}else {
+				builderResponse = Response.status(Response.Status.OK).entity(usuarioConMenu);
+			}
+			
+		} catch (NegocioException nEx) {
+			
+			builderResponse = Response.status(Response.Status.CONFLICT).entity(ManejadorErrNegocio.getMapaDescripcionDetallada(nEx));
+			
+		} catch (PersistenciaException pex) {
+				
+			builderResponse = Response.status(Response.Status.CONFLICT).entity(ManejadorErrPersistencia.getMapaDescripcionDetallada(pex));
+			
+		} catch (Exception e) {
+			response.put("error", "No es posible obtener un usuario");
+			response.put("mensaje", e.getMessage());
+			response.put("causa", e.getCause().toString());
+			builderResponse = Response.status(Response.Status.BAD_REQUEST).entity(response);
+		} 
+		return builderResponse.build();
+	}	
 }

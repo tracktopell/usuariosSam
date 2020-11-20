@@ -33,18 +33,16 @@ public class MenuRest {
 	private Response.ResponseBuilder responseBuilder = null;
 	private Map<String, String> response = new HashMap<>();
 	
-	
 	public MenuRest() {
 		
 	}
-
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getMenu(List<RolUsuario> roles) {
 		Arbol menu = null;
-		System.out.println("Hola");
+		LOGGER.info("-->> getMenu:");
 		try {
 			menu = this.gestorNegocioMenu.getArbolMenu(roles);
 			if(menu == null) {
