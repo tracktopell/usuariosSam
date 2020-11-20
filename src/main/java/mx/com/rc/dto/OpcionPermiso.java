@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  *
  * @author jessica
  */
 
 public class OpcionPermiso implements Serializable {
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	private String idOpcion;
@@ -21,12 +20,16 @@ public class OpcionPermiso implements Serializable {
 
 	private boolean parametros;
 
+	@JsonIgnore
 	private String url;
 
+	@JsonIgnore
 	private String idOpcionPadre;
 	
+	@JsonIgnore
 	private List<String>      rutaMenu;
 	
+	@JsonIgnore
 	private boolean           visibleByRol;
 	
 	private List<OpcionPermiso> subOpcionesList;
