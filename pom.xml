@@ -115,8 +115,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <security_domain_realm>SPECIFY_MAVEN_PROFILE</security_domain_realm>		
-				<jta_data_source>SPECIFY_MAVEN_PROFILE</jta_data_source>
+                <security_domain_realm>uariosSam_jaas-realm</security_domain_realm>		
+				<jta_data_source>java:/MySqlDS</jta_data_source>
 				<project.env>development</project.env>
 				<web_session_timeout>5</web_session_timeout>		
 				<server_instance_XML_expresion><![CDATA[]]></server_instance_XML_expresion>
