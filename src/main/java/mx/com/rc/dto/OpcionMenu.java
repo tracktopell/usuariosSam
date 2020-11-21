@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author jessica
  */
 
-public class OpcionPermiso implements Serializable {
+public class OpcionMenu implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -32,14 +32,14 @@ public class OpcionPermiso implements Serializable {
 	@JsonIgnore
 	private boolean           visibleByRol;
 	
-	private List<OpcionPermiso> subOpcionesList;
+	private List<OpcionMenu> subOpcionesList;
 
-	public OpcionPermiso() {
-		subOpcionesList = new ArrayList<OpcionPermiso>();
+	public OpcionMenu() {
+		subOpcionesList = new ArrayList<OpcionMenu>();
 	}
 	
 
-	public OpcionPermiso(String idOpcion, String nombreOpcion, boolean parametros, String url) {
+	public OpcionMenu(String idOpcion, String nombreOpcion, boolean parametros, String url) {
 		super();
 		this.idOpcion = idOpcion;
 		this.nombreOpcion = nombreOpcion;
@@ -139,11 +139,11 @@ public class OpcionPermiso implements Serializable {
 		this.idOpcionPadre = idOpcionPadre;
 	}
 
-	public List<OpcionPermiso> getSubOpcionesList() {
+	public List<OpcionMenu> getSubOpcionesList() {
 		return subOpcionesList;
 	}
 
-	public void setSubOpcionesList(List<OpcionPermiso> subOpcionesList) {
+	public void setSubOpcionesList(List<OpcionMenu> subOpcionesList) {
 		this.subOpcionesList = subOpcionesList;
 	}
 

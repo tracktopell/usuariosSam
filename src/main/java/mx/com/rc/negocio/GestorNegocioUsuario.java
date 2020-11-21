@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import mx.com.rc.dto.OpcionPermiso;
+import mx.com.rc.dto.OpcionMenu;
 import mx.com.rc.dto.UsuarioConMenu;
 
 import mx.com.rc.entidades.Empresa;
@@ -284,13 +284,16 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 	public UsuarioConMenu getMenuUsuario(String idUsuario) {
 		UsuarioConMenu usuarioConMenu=new UsuarioConMenu();
 		Usuario usuario = null;
-		LinkedHashMap<String,Opcion>        opcionAllMap = new LinkedHashMap<>();
-		LinkedHashMap<String,Opcion>        opcionUsuarioMap = new LinkedHashMap<>();		
-		LinkedHashMap<String,OpcionPermiso> opcionpermisoAllMap = new LinkedHashMap<>();
-		LinkedHashMap<String,OpcionPermiso> opcionpermisoUsuarioMap = new LinkedHashMap<>();
-		
+
 		List<Rol> todosLosRoles = null;
 		List<Opcion> todasLasOpciones = null;
+		
+		LinkedHashMap<String,Opcion>             opcionAllMap = new LinkedHashMap<>();
+		LinkedHashMap<String,Opcion>         opcionUsuarioMap = new LinkedHashMap<>();
+		
+		LinkedHashMap<String,OpcionMenu>     opcionmenuAllMap = new LinkedHashMap<>();
+		LinkedHashMap<String,OpcionMenu> opcionmenuUsuarioMap = new LinkedHashMap<>();
+		
 		try {
 			usuario = this.gestorDatos.leerUsuario(idUsuario, true);
 			
@@ -305,63 +308,82 @@ public class GestorNegocioUsuario implements IGestorNegocioUsuario {
 				}
 			}
 			
+			for(Opcion o:opcionUsuarioMap.values()){
+				LOGGER.info("-> usuarioOpciones: \topcion:"+o.getIdOpcion());
+			}
+			
 			todasLasOpciones = this.gestorDatos.leerTodasLasOpciones();
 			for(Opcion o:todasLasOpciones){
 				LOGGER.info("-> todasLasOpciones: \topcion:"+o.getIdOpcion());
 				opcionAllMap.put(o.getIdOpcion(),o);
-				final OpcionPermiso op = new OpcionPermiso();
-				op.setIdOpcion(o.getIdOpcion());
-				op.setIdOpcionPadre(o.getOpcionPadre()!=null?o.getOpcionPadre().getIdOpcion():null);
-				op.setNombreOpcion(o.getNombreOpcion());
-				op.setParametros(false);
-				op.setUrl(o.getUrl());
-				opcionpermisoAllMap.put(o.getIdOpcion(), op);
+				final OpcionMenu om = new OpcionMenu();
+				om.setIdOpcion(o.getIdOpcion());
+				om.setIdOpcionPadre(o.getOpcionPadre()!=null?o.getOpcionPadre().getIdOpcion():null);
+				om.setNombreOpcion(o.getNombreOpcion());
+				om.setParametros(false);
+				om.setUrl(o.getUrl());
+				opcionmenuAllMap.put(o.getIdOpcion(), om);
 			}
 			//------------------------------------------------------------------
-			for(OpcionPermiso op: opcionpermisoAllMap.values()){
+			LOGGER.info("->getMenuUsuario: poblando cada opcionDTO de sus hijos: ");
+			for(Opcion o: todasLasOpciones){
+				final OpcionMenu om= opcionmenuAllMap.get(o.getIdOpcion());
+				final List<OpcionMenu> somList =om.getSubOpcionesList();
+				for(Opcion o2: todasLasOpciones){
+					if(o2.getOpcionPadre()!=null && o.getIdOpcion().equals(o2.getOpcionPadre().getIdOpcion())){
+						somList.add(opcionmenuAllMap.get(o2.getIdOpcion()));
+					}
+				}
+			}
+			LOGGER.info("->getMenuUsuario: discrimininando nodos mediante rutas a cada hoja: ");
+			for(OpcionMenu om: opcionmenuAllMap.values()){
 				List<String> path=new ArrayList<>();
 				boolean pathEnd=false;
-				OpcionPermiso diggUpper=op;
+				OpcionMenu diggUpper=om;
 				path.add(diggUpper.getIdOpcion());
 				while(!pathEnd){
 					String idOpcionPadre = diggUpper.getIdOpcionPadre();
 					if(idOpcionPadre != null){
 						path.add(idOpcionPadre);
-						diggUpper = opcionpermisoAllMap.get(idOpcionPadre);
+						diggUpper = opcionmenuAllMap.get(idOpcionPadre);
 					} else {
 						pathEnd = true;
 					}
 				}
 				Collections.reverse(path);
-				op.setRutaMenu(path);
+				om.setRutaMenu(path);
 				
-				if(op.getSubOpcionesList().size()==0 && opcionUsuarioMap.containsKey(op.getIdOpcion())){
-					op.setVisibleByRol(true);
-					final List<String> rutaMenu = op.getRutaMenu();
+				if(om.getSubOpcionesList().size()==0 && opcionUsuarioMap.containsKey(om.getIdOpcion())){
+					om.setVisibleByRol(true);
+					final List<String> rutaMenu = om.getRutaMenu();
 					for(String idP: rutaMenu){
-						opcionpermisoAllMap.get(idP).setVisibleByRol(true);
+						opcionmenuAllMap.get(idP).setVisibleByRol(true);
 					}
 				}
 			}
-			for(OpcionPermiso op: opcionpermisoAllMap.values()){
-				final List<OpcionPermiso> subOpcionesList = op.getSubOpcionesList();
-				if(op.isVisibleByRol() && op.getIdOpcionPadre() == null ){
-					opcionpermisoUsuarioMap.put(op.getIdOpcion(), op);
+			LOGGER.info("->getMenuUsuario: recorrido en profundidad: los * seran las ramas: omAllMap{");
+			for(OpcionMenu om: opcionmenuAllMap.values()){
+				final List<OpcionMenu> subOpcionesList = om.getSubOpcionesList();
+				if(om.isVisibleByRol() && om.getIdOpcionPadre() == null ){
+					opcionmenuUsuarioMap.put(om.getIdOpcion(), om);
 				}
-				List<OpcionPermiso> omRL=new ArrayList<>();
-				for(OpcionPermiso sm: subOpcionesList){
+				List<OpcionMenu> omRL=new ArrayList<>();
+				for(OpcionMenu sm: subOpcionesList){
 					if(sm.isVisibleByRol()){
 						omRL.add(sm);
 					}
 				}
-				op.setSubOpcionesList(omRL);			
+				om.setSubOpcionesList(omRL);
+				LOGGER.info("getMenuUsuario: \tid=("+(om.isVisibleByRol()?"*":" ")+")"+om.getIdOpcion()+", pid="+om.getIdOpcionPadre()+", path:"+om.getRutaMenu()+", sumMenulist="+omRL.size());
 			}
+			LOGGER.info("getMenuUsuario: }");
 			
 			usuarioConMenu.setOpcionMenuRaizList(new ArrayList<>());
-			usuarioConMenu.getOpcionMenuRaizList().addAll(opcionpermisoUsuarioMap.values());
+			usuarioConMenu.getOpcionMenuRaizList().addAll(opcionmenuUsuarioMap.values());
 			usuarioConMenu.setUsuario(usuario);
 			return usuarioConMenu;			
 		} catch (NegocioException nex) {
+			nex.printStackTrace(System.err);
 			Map<String,String> detEx = new HashMap<String,String>();
 			detEx.put("servicio",this.getClass()+".getMenuUsuario(idUsuario: " + idUsuario + ")");
 			detEx.put("msg", nex.getMessage());

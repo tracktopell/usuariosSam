@@ -11,7 +11,7 @@ public class Arbol implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -3344757635285302139L;
-	public List<OpcionPermiso> menu = new ArrayList<OpcionPermiso>();
+	public List<OpcionMenu> menu = new ArrayList<OpcionMenu>();
 
 	
 	
@@ -20,17 +20,17 @@ public class Arbol implements Serializable {
 	}
 
 
-	public List<OpcionPermiso> getMenu() {
+	public List<OpcionMenu> getMenu() {
 		return menu;
 	}
 
 
-	public void setMenu(List<OpcionPermiso> menu) {
+	public void setMenu(List<OpcionMenu> menu) {
 		this.menu = menu;
 	}
 
 
-	public void getRamas(List<OpcionPermiso> listaOpcionesPermitidas) {
+	public void getRamas(List<OpcionMenu> listaOpcionesPermitidas) {
 		
 		for(int i = 0; i < listaOpcionesPermitidas.size(); i++) {
 			System.out.println("ramas: " + listaOpcionesPermitidas.get(i).toString());
@@ -48,8 +48,8 @@ public class Arbol implements Serializable {
 	}
 
 
-	private void getHijos(List<OpcionPermiso> listaOpcionesPermitidas, OpcionPermiso opcionPadre) {
-		List<OpcionPermiso> opcionesHijas = new ArrayList<OpcionPermiso>();
+	private void getHijos(List<OpcionMenu> listaOpcionesPermitidas, OpcionMenu opcionPadre) {
+		List<OpcionMenu> opcionesHijas = new ArrayList<OpcionMenu>();
 		
 		for(int i = 0; i < listaOpcionesPermitidas.size(); i++) {
 			

@@ -9,7 +9,7 @@ import mx.com.rc.entidades.Usuario;
 
 public class UsuarioConMenu implements Serializable{
 	private Usuario usuario;
-	private List<OpcionPermiso> opcionMenuRaizList;
+	private List<OpcionMenu> opcionMenuRaizList;
 	
 	public UsuarioConMenu() {}
 	/**
@@ -29,14 +29,14 @@ public class UsuarioConMenu implements Serializable{
 	/**
 	 * @return the opcionMenuRaizList
 	 */
-	public List<OpcionPermiso> getOpcionMenuRaizList() {
+	public List<OpcionMenu> getOpcionMenuRaizList() {
 		return opcionMenuRaizList;
 	}
 
 	/**
 	 * @param opcionMenuRaizList the opcionMenuRaizList to set
 	 */
-	public void setOpcionMenuRaizList(List<OpcionPermiso> opcionMenuRaizList) {
+	public void setOpcionMenuRaizList(List<OpcionMenu> opcionMenuRaizList) {
 		this.opcionMenuRaizList = opcionMenuRaizList;
 	}
 	

@@ -11,7 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import mx.com.rc.dto.Arbol;
-import mx.com.rc.dto.OpcionPermiso;
+import mx.com.rc.dto.OpcionMenu;
 import mx.com.rc.entidades.Opcion;
 import mx.com.rc.entidades.Permiso;
 import mx.com.rc.entidades.Rol;
@@ -66,11 +66,11 @@ public class GestorNegocioMenu implements IGestorNegocioMenu{
 		
 		List<Opcion> listaOpciones = this.gestorDatosMenu.leerOpciones(sinNodosRepetidos);
 		System.out.println("listaOpciones: " + listaOpciones.toString());
-		List<OpcionPermiso> listaOpcionesPermitidas = new ArrayList<OpcionPermiso>();
-		List<OpcionPermiso> ramas = new ArrayList<OpcionPermiso>();
+		List<OpcionMenu> listaOpcionesPermitidas = new ArrayList<OpcionMenu>();
+		List<OpcionMenu> ramas = new ArrayList<OpcionMenu>();
 		try {
 			for(Opcion opcionI:listaOpciones) {
-				OpcionPermiso nuevaOpcion = new OpcionPermiso(opcionI.getIdOpcion(), opcionI.getNombreOpcion(), opcionI.isParametros(), opcionI.getUrl());
+				OpcionMenu nuevaOpcion = new OpcionMenu(opcionI.getIdOpcion(), opcionI.getNombreOpcion(), opcionI.isParametros(), opcionI.getUrl());
 				if(opcionI.getOpcionPadre() != null) {
 					nuevaOpcion.setIdOpcionPadre(opcionI.getOpcionPadre().getIdOpcion());
 				}
